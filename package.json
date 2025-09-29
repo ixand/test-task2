@@ -1,0 +1,29 @@
+{
+  "name": "google-calendar-playwright-tests",
+  "version": "1.0.0",
+  "description": "Playwright tests for Google Calendar CRUD operations",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug",
+    "test:ui": "npx playwright test --ui",
+    "report": "npx playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.0.0",
+    "dotenv": "^17.2.2",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "playwright",
+    "typescript",
+    "google-calendar",
+    "automation",
+    "testing",
+    "crud"
+  ],
+  "author": "ixane",
+  "license": "MIT"
+}
