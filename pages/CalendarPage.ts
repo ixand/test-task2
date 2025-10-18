@@ -1,12 +1,7 @@
-import { Page, Locator } from '@playwright/test';
-
+import { Page, Locator, expect } from '@playwright/test';
 
 export interface EventData {
   title: string;
-  description?: string;
-  startTime?: string;
-  endTime?: string;
-  location?: string;
 }
 
 export class CalendarPage {
@@ -15,11 +10,9 @@ export class CalendarPage {
   readonly createButton: Locator;
   readonly eventMoreDetails: Locator;
   readonly eventTitleInput: Locator;
-  readonly eventDescriptionInput: Locator;
   readonly saveEventButton: Locator;
   readonly deleteEventButton: Locator;
   readonly editEventButton: Locator;
-  readonly eventPopup: Locator;
   readonly confirmDeleteButton: Locator;
 
   constructor(page: Page) {
@@ -31,7 +24,6 @@ export class CalendarPage {
     this.createButton = this.page.getByRole('menuitem', { name: /Подія|Event/i });
     // Елементи форми створення/редагування події
     this.eventTitleInput = page.getByRole('textbox', {name: /Заголовок|Title/});
-    this.eventDescriptionInput = page.getByRole('textbox', {name: /Опис/});
     
     
     // Кнопки дій
@@ -40,32 +32,31 @@ export class CalendarPage {
     this.editEventButton = page.getByRole('button', {name: /Змінити подію|Змінити/});
     this.confirmDeleteButton = page.locator('button:has-text("Delete"), span:has-text("Delete")');
     
-    // Попап події
-    this.eventPopup = page.locator('[role="dialog"], .UfeRlc');
   }
 
   /**
    * Очікує завантаження календаря
    */
   async waitForCalendarLoad(): Promise<void> {
-    await this.page.waitForTimeout(2000);
     // переходимо в Calendar:
+        await this.page.waitForTimeout(2000);
         await this.page.goto('https://calendar.google.com', { waitUntil: 'domcontentloaded' });
+        
   }
-  async CreateButtonMenu(): Promise<void>
-  { await this.page.waitForTimeout(1000); 
-    await this.createEventButton.click({ force: true });
-    await this.createButton.click({ force: true });
+  async createButtonMenu(): Promise<void>
+  { 
+    await this.createEventButton.click();
+    await this.createButton.click();
   }
   /**
    * Створює нову подію в календарі
    * @param eventData - Дані про подію
    */
   async createEvent(eventData: EventData): Promise<void> {
-    
-    await this.CreateButtonMenu();
+    await this.page.waitForTimeout(2000);
+    await this.createButtonMenu();
     // Крок 2: Заповнення форми події
-    await this.eventMoreDetails.click({force: true});
+    await this.eventMoreDetails.click();
     await this.fillEventForm(eventData);
     
     // Крок 3: Збереження події
@@ -78,13 +69,9 @@ export class CalendarPage {
    */
   async fillEventForm(eventData: EventData): Promise<void> {
     // Заповнення назви події
-    
-    await this.page.waitForTimeout(1000); 
+     
     await this.eventTitleInput.waitFor({ state: 'visible'});
     await this.eventTitleInput.fill(eventData.title);
-
-    // Заповнення опису 
-    await this.eventDescriptionInput.fill(eventData.description);
     
   }
 
@@ -92,13 +79,13 @@ export class CalendarPage {
    * Зберігає подію
    */
   async saveEvent(): Promise<void> {
-    await this.saveEventButton.click({force: true});
-    await this.page.waitForTimeout(2000); // Очікування збереження
+    await this.page.waitForTimeout(2000);
+    await this.saveEventButton.click();
   }
 
   /**
    * Знаходить подію за назвою
-   * @param eventTitle - Назва події для пошуку
+   * @param title - Назва події для пошуку
    * @returns Locator знайденої події
    */
   getEventByTitle(title: string) {
@@ -109,18 +96,10 @@ export class CalendarPage {
   /**
    * Читає деталі події
    * @param eventTitle - Назва події
-   * @returns Дані події
    */
   async readEventDetails(eventTitle: string): Promise<void> {
-    // Крок 1: Клік по події для відкриття деталей
     const eventElement = this.getEventByTitle(eventTitle);
-    await eventElement.click({force: true});
-    
-    
-    // Крок 2: Зчитування деталей події
-    const title = await this.eventTitleInput;
-    const description = await this.eventDescriptionInput;
-   
+    await eventElement.click();
   }
 
   /**
@@ -157,13 +136,16 @@ export class CalendarPage {
     await this.deleteEventButton.click();
     
     // Крок 3: Очікування завершення видалення
-    await this.page.waitForTimeout(2000);
-  }
+    await expect(this.page.getByRole('heading', { name: eventTitle })).toHaveCount(0);
 
+  }
   /**
-   * Перевіряє чи існує подія з вказаною назвою
-   * @param eventTitle - Назва події
-   * @returns true якщо подія існує
+   * Перевіряє деталі події
+   * @param title - Назва події
    */
-  
+
+  async expectEventTitleVisible(title: string) {
+    const titleElement = this.page.getByRole('heading', { name: title });
+    await expect(titleElement).toBeVisible();
+  }
 }

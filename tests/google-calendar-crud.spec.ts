@@ -1,24 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect} from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
-import { CalendarPage, EventData } from '../pages/CalendarPage';
+import { CalendarPage} from '../pages/CalendarPage';
+import { TEST_USER, TEST_EVENT, UPDATED_EVENT } from '../data/testData';
 
-// Тестові дані
-const TEST_USER = {
-  email: process.env.GOOGLE_EMAIL ,
-  password: process.env.GOOGLE_PASSWORD 
-};
-
-const TEST_EVENT: EventData = {
-  title: 'Playwright Test Event',
-  description: 'Test event created by Playwright automation',
-  location: 'Test Location'
-};
-
-const UPDATED_EVENT: EventData = {
-  title: 'Updated Playwright Test Event',
-  description: 'Updated test event description',
-  location: 'Updated Test Location'
-};
 
 test.describe('Google Calendar CRUD Operations', () => {
   let loginPage: LoginPage;
@@ -28,55 +12,42 @@ test.describe('Google Calendar CRUD Operations', () => {
     loginPage = new LoginPage(page);
     calendarPage = new CalendarPage(page);
 
-    // Перехід на сторінку входу Google
-    await page.goto('https://accounts.google.com/signin');
-  });
-
-
-
-  test('CREATE: Створення нової події в календарі', async ({ page }) => {
-    
-    await loginPage.login(TEST_USER.email, TEST_USER.password);
-    
+    await loginPage.login(TEST_USER.email!, TEST_USER.password!);
     await calendarPage.waitForCalendarLoad();
-    // Act: Створення нової події
-    await calendarPage.createEvent(TEST_EVENT);
-
-    
   });
 
-  test('READ: Читання деталей існуючої події', async ({ page }) => {
-    
-    await loginPage.login(TEST_USER.email, TEST_USER.password);
-     await calendarPage.waitForCalendarLoad();
-    await calendarPage.readEventDetails(TEST_EVENT.title);
-    
+test('CREATE: Створення нової події в календарі', async ({}) => {
+  
+  await calendarPage.createEvent(TEST_EVENT)
+  await calendarPage.readEventDetails(TEST_EVENT.title)
+  await calendarPage.expectEventTitleVisible(TEST_EVENT.title)
+});
 
-   
-  });
 
-   test('UPDATE: Оновлення існуючої події', async ({ page }) => {
-    
-    await loginPage.login(TEST_USER.email, TEST_USER.password);
-    
-     await calendarPage.waitForCalendarLoad();
+test('READ: Читання деталей існуючої події', async ({ page }) => {
+ 
+  await calendarPage.readEventDetails(TEST_EVENT.title)
+  await calendarPage.expectEventTitleVisible(TEST_EVENT.title)
+
+});
+
+test('UPDATE: Оновлення існуючої події', async ({ page }) => {
 
     // Act: Оновлення події
     await calendarPage.updateEvent(TEST_EVENT.title, UPDATED_EVENT);
-
+    await calendarPage.readEventDetails(UPDATED_EVENT.title);
+    await calendarPage.expectEventTitleVisible(UPDATED_EVENT.title)
     
   });
 
-  test('DELETE: Видалення існуючої події', async ({ page }) => {
-    
-    await loginPage.login(TEST_USER.email, TEST_USER.password);
-     await calendarPage.waitForCalendarLoad();
+  test('DELETE: Видалення існуючої події', async ({}) => {
+
     // Act: Видалення події
     await calendarPage.deleteEvent(TEST_EVENT.title);
 
-    
+    const eventExist = calendarPage.getEventByTitle(TEST_EVENT.title)
+
+    await expect(eventExist).toHaveCount(0);
    
   });
-
-  
 });

@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator} from '@playwright/test';
 
 export class LoginPage {
   readonly page: Page;
@@ -19,7 +19,7 @@ export class LoginPage {
   async login(email: string, password: string): Promise<void> {
     if (!email || !password) throw new Error('Missing GOOGLE_EMAIL/GOOGLE_PASSWORD');
 
-
+    await this.page.goto('https://accounts.google.com/signin');
     // email
     if (await this.emailInput.isVisible({ timeout: 5000 }).catch(() => false)) {
       await this.emailInput.fill(email);
