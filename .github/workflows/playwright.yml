@@ -10,32 +10,35 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    
     env:
       GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
       GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
+    
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+       
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
-
+       
       - name: Install dependencies
         run: npm ci
-
+       
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-
+       
+      # ВИПРАВЛЕНО: використовуємо pipe | для багаторядкової команди
       - name: Restore auth state
-        run:
+        run: |
           mkdir -p playwright/.auth
           echo '${{ secrets.PLAYWRIGHT_AUTH_STATE }}' > playwright/.auth/user.json
-    
-
+          
       - name: Run Playwright tests
-        # Генерацією звіту та відео
         run: npx playwright test --reporter=html
-
+       
       - name: Upload Playwright artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -43,6 +46,5 @@ jobs:
           name: playwright-artifacts
           path: |
             playwright-report/
-            **/*.png
-            **/*.webm
+            test-results/
           retention-days: 30
