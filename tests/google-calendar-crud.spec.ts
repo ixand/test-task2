@@ -5,7 +5,6 @@ import { TEST_USER, TEST_EVENT, UPDATED_EVENT } from '../data/testData';
 
 
 test.describe('Google Calendar CRUD Operations', () => {
-  let loginPage: LoginPage;
   let calendarPage: CalendarPage;
 
   test.beforeEach(async ({ page }) => {

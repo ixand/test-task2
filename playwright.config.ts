@@ -23,21 +23,15 @@ export default defineConfig({
   },
 
     projects: [
-    // Setup project для створення auth state
-    { 
-      name: 'setup', 
-      testMatch: /.*\.setup\.ts/ 
-    },
-    
-    // Основні тести з використанням збереженої сесії
-    {
+       {
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
-        // Використовуємо збережену сесію
-        storageState: 'playwright/.auth/user.json',
+        // готовий auth state
+        storageState: process.env.CI 
+          ? 'playwright/.auth/user.json'  // В CI з секрету
+          : 'playwright/.auth/user.json', // Локально теж звідси
       },
-      dependencies: ['setup'],
     },
   ],
 });
