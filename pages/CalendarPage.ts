@@ -27,8 +27,8 @@ export class CalendarPage {
     
     
     // Кнопки дій
-    this.saveEventButton = page.getByRole('button', {name: /Зберегти/});
-    this.deleteEventButton = page.getByRole('button', {name: /Видалити|Видалити подію/});
+    this.saveEventButton = page.getByRole('button', {name: /Зберегти|Save/});
+    this.deleteEventButton = page.getByRole('button', {name: /Видалити|Delete/});
     this.editEventButton = page.getByRole('button', {name: /Змінити подію|Змінити/});
     this.confirmDeleteButton = page.locator('button:has-text("Delete"), span:has-text("Delete")');
     
@@ -39,13 +39,14 @@ export class CalendarPage {
    */
   async waitForCalendarLoad(): Promise<void> {
     // переходимо в Calendar:
-        await this.page.waitForTimeout(2000);
         await this.page.goto('https://calendar.google.com', { waitUntil: 'domcontentloaded' });
         
   }
   async createButtonMenu(): Promise<void>
-  { 
-    await this.createEventButton.click();
+  { await this.createEventButton.waitFor({state: 'visible'})
+    await this.createEventButton.click()
+
+    await this.createButton.waitFor({state: 'visible'})
     await this.createButton.click();
   }
   /**
@@ -53,9 +54,9 @@ export class CalendarPage {
    * @param eventData - Дані про подію
    */
   async createEvent(eventData: EventData): Promise<void> {
-    await this.page.waitForTimeout(2000);
     await this.createButtonMenu();
     // Крок 2: Заповнення форми події
+    await this.eventMoreDetails.waitFor({state: 'visible'})
     await this.eventMoreDetails.click();
     await this.fillEventForm(eventData);
     
@@ -69,17 +70,16 @@ export class CalendarPage {
    */
   async fillEventForm(eventData: EventData): Promise<void> {
     // Заповнення назви події
-     
     await this.eventTitleInput.waitFor({ state: 'visible'});
     await this.eventTitleInput.fill(eventData.title);
-    
   }
 
   /**
    * Зберігає подію
    */
   async saveEvent(): Promise<void> {
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(2000)
+    await this.saveEventButton.waitFor({ state: 'visible' })
     await this.saveEventButton.click();
   }
 
@@ -99,6 +99,7 @@ export class CalendarPage {
    */
   async readEventDetails(eventTitle: string): Promise<void> {
     const eventElement = this.getEventByTitle(eventTitle);
+    await eventElement.waitFor({state: 'visible'})
     await eventElement.click();
   }
 
@@ -110,9 +111,11 @@ export class CalendarPage {
   async updateEvent(currentTitle: string, newEventData: EventData): Promise<void> {
     // Крок 1: Відкриття події для редагування
     const eventElement = this.getEventByTitle(currentTitle);
+    await eventElement.waitFor({state: 'visible'})
     await eventElement.click();
     
     // Крок 2: Натискання кнопки редагування
+    await this.editEventButton.waitFor({state: 'visible'})
     await this.editEventButton.click();
     
     // Крок 3: Очищення та заповнення нових даних
@@ -130,9 +133,11 @@ export class CalendarPage {
   async deleteEvent(eventTitle: string): Promise<void> {
     // Крок 1: Відкриття події
     const eventElement = this.getEventByTitle(eventTitle);
+    await eventElement.waitFor({state: 'visible'})
     await eventElement.click();
     
     // Крок 2: Натискання кнопки видалення
+    await this.deleteEventButton.waitFor({state: 'visible'})
     await this.deleteEventButton.click();
     
     // Крок 3: Очікування завершення видалення

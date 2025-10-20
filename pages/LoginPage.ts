@@ -21,16 +21,15 @@ export class LoginPage {
 
     await this.page.goto('https://accounts.google.com/signin');
     // email
-    if (await this.emailInput.isVisible({ timeout: 5000 }).catch(() => false)) {
+    if (await this.emailInput.isVisible()) {
       await this.emailInput.fill(email);
       await this.emailNextBtn.click();
     }
 
     // пароль 
-    await this.passwordInput.waitFor({ state: 'visible', timeout: 20000 });
+    await this.passwordInput.waitFor({ state: 'visible'});
     await this.passwordInput.fill(password);
     await this.passwordNextBtn.click();
-
-    
+    await this.page.waitForTimeout(2000)
   }
 }

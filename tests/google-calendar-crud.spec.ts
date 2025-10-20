@@ -9,29 +9,25 @@ test.describe('Google Calendar CRUD Operations', () => {
   let calendarPage: CalendarPage;
 
   test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
     calendarPage = new CalendarPage(page);
-
-    await loginPage.login(TEST_USER.email!, TEST_USER.password!);
-    await calendarPage.waitForCalendarLoad();
+    await calendarPage.waitForCalendarLoad()
   });
 
-test('CREATE: Створення нової події в календарі', async ({}) => {
-  
+test('CREATE: Створення нової події в календарі', async () => {
   await calendarPage.createEvent(TEST_EVENT)
   await calendarPage.readEventDetails(TEST_EVENT.title)
   await calendarPage.expectEventTitleVisible(TEST_EVENT.title)
 });
 
 
-test('READ: Читання деталей існуючої події', async ({ page }) => {
+test('READ: Читання деталей існуючої події', async () => {
  
   await calendarPage.readEventDetails(TEST_EVENT.title)
   await calendarPage.expectEventTitleVisible(TEST_EVENT.title)
 
 });
 
-test('UPDATE: Оновлення існуючої події', async ({ page }) => {
+test('UPDATE: Оновлення існуючої події', async () => {
 
     // Act: Оновлення події
     await calendarPage.updateEvent(TEST_EVENT.title, UPDATED_EVENT);
@@ -40,7 +36,7 @@ test('UPDATE: Оновлення існуючої події', async ({ page }) 
     
   });
 
-  test('DELETE: Видалення існуючої події', async ({}) => {
+  test('DELETE: Видалення існуючої події', async () => {
 
     // Act: Видалення події
     await calendarPage.deleteEvent(TEST_EVENT.title);
